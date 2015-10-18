@@ -10,10 +10,53 @@ import UIKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-
+    
+    // MARK: Types
+    enum ShortcutIdentifier: String {
+        case incrementTen
+        case decrementTen
+        
+        init?(fullType: String) {
+            guard let last = fullType.componentsSeparatedByString(".").last else { return nil }
+            
+            self.init(rawValue: last)
+        }
+    }
+    
+    // MARK: Properties
+    var launchedShortcutItem: UIApplicationShortcutItem?
     var window: UIWindow?
+    
+    // MARK: Shortcut Handlers
+    private func handleShortcut(shortcutItem: UIApplicationShortcutItem) -> Bool {
+        let shortcutType = shortcutItem.type
+        guard let shortcutIdentifier = ShortcutIdentifier(fullType: shortcutType) else {
+            return false
+        }
+        guard let viewController = self.window?.rootViewController as? ViewController else {
+            return false;
+        }
+        
+        switch(shortcutIdentifier){
+        case .decrementTen:
+            viewController.decrementAmount(10)
+            return true
+        case .incrementTen:
+            viewController.incrementAmount(10)
+            return true
+        }
+    }
+    
 
-
+    // MARK: Life Cycle
+    
+    func application(application: UIApplication,
+        performActionForShortcutItem shortcutItem: UIApplicationShortcutItem,
+        completionHandler: (Bool) -> Void) {
+            
+            completionHandler(handleShortcut(shortcutItem))
+    }
+    
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
         return true
